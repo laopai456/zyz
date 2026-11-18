@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>立绘预览（开发用）</title>
+<style>
+  body { background: #14161f; margin: 0; padding: 10px; }
+</style>
+</head>
+<body>
+<canvas id="pv" width="1500" height="1020"></canvas>
+<script src="js/pixel.js"></script>
+<script>
+  Pixel.init();
+  const cv = document.getElementById('pv');
+  const ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.fillStyle = '#1c2030'; ctx.fillRect(0, 0, cv.width, cv.height);
+
+  // ---- 第一行：全部精灵 ×4，脚底对齐 y=250 ----
+  ctx.textAlign = 'center'; ctx.font = 'bold 18px monospace';
+  const row1 = [
+    ['swordsman', 4], ['taoist', 4], ['monk', 4], ['elite', 4],
+    ['mob_green', 4], ['mob_red', 4], ['mob_purple', 4], ['mob_gold', 4],
+    ['tree', 4], ['rock', 4],
+  ];
+  let x = 40;
+  for (const [n, Z] of row1) {
+    const spr = Pixel.sprites[n];
+    const w = spr.width * Z;
+    for (let gy = 0; gy < 2; gy++)
+      for (let gx = 0; gx < 2; gx++) {
+        ctx.fillStyle = (gx + gy) % 2 ? '#3a3f52' : '#33384a';
+        ctx.fillRect(x, 250 - w / 2 + gy * w / 4, w / 2, w / 4);
+        ctx.fillStyle = (gx + gy) % 2 ? '#33384a' : '#3a3f52';
+        ctx.fillRect(x + w / 2, 250 - w / 2 + gy * w / 4, w / 2, w / 4);
+      }
+    Pixel.drawSprite(ctx, spr, x + w / 2, 250, Z, 0);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(n, x + w / 2, 250 + 24);
+    x += w + 26;
+  }
+
+  // ---- 房间内实际观感 ----
+  const ry = 430;
+  ctx.fillStyle = '#2d3230'; ctx.fillRect(20, ry - 130, 700, 150);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
+  ctx.fillText('房间内实际大小 (玩家1.3 / 妖物1.15-1.5 / 妖王2.4):', 30, ry - 114);
+  Pixel.drawSprite(ctx, Pixel.sprites.swordsman, 80, ry, 1.3, 0);
+  Pixel.drawSprite(ctx, Pixel.sprites.mob_green, 160, ry, 1.3, 0);
+  Pixel.drawSprite(ctx, Pixel.sprites.mob_red, 230, ry, 1.15, 0);
+  Pixel.drawSprite(ctx, Pixel.sprites.mob_purple, 300, ry, 1.3, 0);
+  Pixel.drawSprite(ctx, Pixel.sprites.mob_gold, 370, ry, 1.5, 0);
+  Pixel.drawSprite(ctx, Pixel.sprites.elite, 470, ry - 2, 2.4, 0);
+
+  // ---- 半身像：选卡尺寸 + 大图 ----
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 14px monospace';
+  ctx.fillText('portraits 半身像（选职业卡 / 大招特写）:', 740, ry - 114);
+  const namesP = ['swordsman', 'taoist', 'monk'];
+  namesP.forEach((n, i) => {
+    const x0 = 740 + i * 250, y0 = ry - 100;
+    ctx.fillStyle = 'rgba(13,15,26,0.93)'; ctx.fillRect(x0, y0, 240, 118);
+    ctx.fillStyle = { swordsman: '#3fa7c4', taoist: '#e8b23a', monk: '#e8952f' }[n];
+    ctx.fillRect(x0, y0, 240, 3); ctx.fillRect(x0, y0 + 115, 240, 3);
+    ctx.drawImage(Pixel.portraits[n], x0 + 8, y0 + 8, 102, 102);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 13px monospace';
+    ctx.fillText(n, x0 + 120, y0 + 50);
+    ctx.drawImage(Pixel.portraits[n], x0 + 8, y0 + 118, 204, 204);
+  });
+</script>
+</body>
+</html>
